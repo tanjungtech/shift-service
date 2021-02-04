@@ -1,6 +1,7 @@
 export {}
 
 const { errorOutcome } = require('../utils/errorHandlers')
+const { shiftValidation } = require('../utils/validation')
 const Schedule = require('../models/Schedule')
 const Account = require('../models/Account')
 
@@ -55,6 +56,8 @@ module.exports = {
 
       const account_from_db = await Account.findById(account_id)
 
+      await shiftValidation(account_from_db, data)
+
       if (!account_from_db)
         throw { status: 400, message: 'No user detected' }
 
@@ -89,6 +92,9 @@ module.exports = {
 
       if (!account_from_db)
         throw { status: 400, message: 'No user detected' }
+
+      if (!deleted_on)
+        await shiftValidation(account_from_db, data)
 
       const shifts_object = data.map( (d:any, i:number) => {
         return deleted_on ?
